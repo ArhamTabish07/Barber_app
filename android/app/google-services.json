@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "725985599757",
+    "project_id": "barberapp-edabc",
+    "storage_bucket": "barberapp-edabc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:725985599757:android:4060242a357c6db3f15044",
+        "android_client_info": {
+          "package_name": "com.example.barber_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiOdgkER2yaQOkHD7N64uHtKfzy2_rsDE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,7 @@
 import 'package:barber_app/Admin/booking_admin.dart';
-import 'package:barber_app/pages/signin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/gestures.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
 
 class AdminLogin extends StatefulWidget {

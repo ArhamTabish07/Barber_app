@@ -55,7 +55,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _loading = true;
     });
 
-    final authProv = context.read<AuthenticationProvider>();
+    final authProv = context.read<AuthenticationProvider>();            
 
     final err = await authProv.signUp(
       name: nameController.text.trim(),

@@ -8,6 +8,7 @@ class Database {
       _usersCollection = FirebaseFirestore.instance.collection('users'),
       _bookingCollection = FirebaseFirestore.instance.collection('Booking');
 
+  // ignore: unused_field
   final FirebaseFirestore _firestore;
   final CollectionReference _usersCollection;
   final CollectionReference<Map<String, dynamic>> _bookingCollection;

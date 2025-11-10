@@ -1,9 +1,9 @@
 import 'dart:typed_data';
+import 'package:barber_app/core/dependency_injection/di.dart';
+import 'package:barber_app/core/services/navigation_service.dart';
+import 'package:barber_app/core/constants/colors.dart';
 import 'package:barber_app/features/auth/screens/signin.dart';
-import 'package:barber_app/features/home/screens/home.dart';
-import 'package:barber_app/provider/auth_provider.dart';
-import 'package:barber_app/provider/user_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:barber_app/features/auth/provider/auth_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,13 +18,20 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formkey = GlobalKey<FormState>();
+  final _navService = DI.i<NavigationService>();
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  late TextEditingController nameController = TextEditingController();
+  late TextEditingController emailController = TextEditingController();
+  late TextEditingController passwordController = TextEditingController();
 
   Uint8List? _imageBytes;
-  bool _loading = false;
+  @override
+  void initState() {
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    nameController = TextEditingController();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -48,51 +55,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
-  Future<void> _handleSignUp() async {
-    if (!_formkey.currentState!.validate()) return;
-
-    setState(() {
-      _loading = true;
-    });
-
-    final authProv = context.read<AuthenticationProvider>();            
-
-    final err = await authProv.signUp(
-      name: nameController.text.trim(),
-      email: emailController.text.trim(),
-      password: passwordController.text,
-      imageBytes: _imageBytes,
-    );
-
-    setState(() {
-      _loading = false;
-    });
-
-    if (err != null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
-      return;
-    }
-
-    // Signed up successfully -> hydrate UserProvider
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
-    await context.read<UserProvider>().loadUserByUid(uid);
-
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const Home()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final authLoading = context.watch<AuthenticationProvider>().isLoading;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xffb91635), Color(0xff621d3c), Color(0xff311937)],
+            colors: [
+              ColorConstant.gradientRed,
+              ColorConstant.gradientPurple,
+              ColorConstant.gradientDeepPurple,
+            ],
           ),
         ),
         child: SafeArea(
@@ -166,7 +141,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           const Text(
                             "Name",
                             style: TextStyle(
-                              color: Color(0xFF7B1F2B),
+                              color: ColorConstant.headingMaroon,
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                             ),
@@ -188,7 +163,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           const Text(
                             "Gmail",
                             style: TextStyle(
-                              color: Color(0xFF7B1F2B),
+                              color: ColorConstant.headingMaroon,
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                             ),
@@ -211,7 +186,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           const Text(
                             "Password",
                             style: TextStyle(
-                              color: Color(0xFF7B1F2B),
+                              color: ColorConstant.headingMaroon,
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                             ),
@@ -232,7 +207,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           const SizedBox(height: 32),
                           GestureDetector(
-                            onTap: _loading ? null : _handleSignUp,
+                            onTap: authLoading
+                                ? null
+                                : () {
+                                    final authProv = context
+                                        .read<AuthenticationProvider>();
+                                    if (_formkey.currentState!.validate()) {
+                                      authProv.signUp(
+                                        name: nameController.text.trim(),
+                                        email: emailController.text.trim(),
+                                        password: passwordController.text,
+                                        imageBytes: _imageBytes,
+                                      );
+                                    }
+                                  },
                             child: Container(
                               height: 56,
                               decoration: BoxDecoration(
@@ -240,23 +228,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 gradient: LinearGradient(
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
-                                  colors: _loading
+                                  colors: authLoading
                                       ? [
-                                          const Color(
-                                            0xFFB2272F,
-                                          ).withOpacity(0.5),
-                                          const Color(
-                                            0xFF3A153E,
-                                          ).withOpacity(0.5),
+                                          ColorConstant.buttonRed.withOpacity(
+                                            0.5,
+                                          ),
+                                          ColorConstant.buttonPurple
+                                              .withOpacity(0.5),
                                         ]
                                       : const [
-                                          Color(0xFFB2272F),
-                                          Color(0xFF3A153E),
+                                          ColorConstant.buttonRed,
+                                          ColorConstant.buttonPurple,
                                         ],
                                 ),
                               ),
                               child: Center(
-                                child: _loading
+                                child: authLoading
                                     ? const SizedBox(
                                         width: 20,
                                         height: 20,
@@ -295,17 +282,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   TextSpan(
                                     text: "Sign In",
                                     style: const TextStyle(
-                                      color: Color(0xFF6B2C7B),
+                                      color: ColorConstant.linkPurple,
                                       fontWeight: FontWeight.w700,
                                     ),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                const SigninScreen(),
-                                          ),
+                                        _navService.navigateToScreen(
+                                          nextScreen: SigninScreen(),
                                         );
                                       },
                                   ),

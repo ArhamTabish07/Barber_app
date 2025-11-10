@@ -1,6 +1,8 @@
-import 'package:barber_app/provider/auth_provider.dart';
+import 'package:barber_app/core/dependency_injection/di.dart';
+import 'package:barber_app/features/auth/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:barber_app/core/services/navigation_service.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -11,9 +13,16 @@ class ForgotPassword extends StatefulWidget {
 
 class _ForgotPasswordState extends State<ForgotPassword> {
   final _formkey = GlobalKey<FormState>();
-  final TextEditingController emailController = TextEditingController();
+  late TextEditingController emailController = TextEditingController();
 
   bool _sending = false;
+  final _navService = DI.i<NavigationService>();
+  @override
+  void initState() {
+    emailController = TextEditingController();
+
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -29,30 +38,17 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     final auth = context.read<AuthenticationProvider>();
     final email = emailController.text.trim();
 
-    final String? errorMessage = await auth.resetPassword(
-      email: email,
-    ); // provider does try/catch
+    final String? errorMessage = await auth.resetPassword(email: email);
 
     if (!mounted) return;
     setState(() => _sending = false);
 
     if (errorMessage == null) {
       // success
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Password reset email sent!',
-            style: TextStyle(fontSize: 18),
-          ),
-        ),
-      );
+      _navService.showToast('Password reset email sent!');
     } else {
       // failed
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage, style: const TextStyle(fontSize: 18)),
-        ),
-      );
+      _navService.showToast(errorMessage);
     }
   }
 

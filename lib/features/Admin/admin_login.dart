@@ -1,8 +1,8 @@
-import 'package:barber_app/Admin/booking_admin.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:barber_app/features/auth/provider/auth_provider.dart';
+import 'package:barber_app/core/constants/colors.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AdminLogin extends StatefulWidget {
   const AdminLogin({super.key});
@@ -12,22 +12,35 @@ class AdminLogin extends StatefulWidget {
 }
 
 class _AdminLoginState extends State<AdminLogin> {
-  TextEditingController nameController = TextEditingController();
+  late TextEditingController nameController = TextEditingController();
 
-  TextEditingController passwordController = TextEditingController();
+  late TextEditingController passwordController = TextEditingController();
   @override
+  void initState() {
+    nameController = TextEditingController();
+    passwordController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    nameController.dispose();
+    passwordController.dispose();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         // Background gradient (only visible behind the header area)
         decoration: const BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             // begin: Alignment.centerLeft,
             // end: Alignment.centerRight,
             colors: [
-              Color(0xffb91635), // red
-              Color(0xff621d3c), // purple
-              Color(0xff311937), //
+              ColorConstant.gradientRed, // red
+              ColorConstant.gradientPurple, // purple
+              ColorConstant.gradientDeepPurple, //
             ],
           ),
         ),
@@ -42,7 +55,7 @@ class _AdminLoginState extends State<AdminLogin> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Admin\nPanel",
+                      "Admin\nLogin",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 36,
@@ -50,14 +63,6 @@ class _AdminLoginState extends State<AdminLogin> {
                       ),
                     ),
                     SizedBox(height: 6),
-                    // Text(
-                    //   "Sign in!",
-                    //   style: TextStyle(
-                    //     color: Colors.white,
-                    //     fontSize: 32,
-                    //     fontWeight: FontWeight.w700,
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
@@ -82,7 +87,7 @@ class _AdminLoginState extends State<AdminLogin> {
                           const Text(
                             "Name",
                             style: TextStyle(
-                              color: Color(0xFF7B1F2B),
+                              color: ColorConstant.headingMaroon,
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                             ),
@@ -107,23 +112,12 @@ class _AdminLoginState extends State<AdminLogin> {
                           ),
 
                           const SizedBox(height: 30),
-                          // Gmail
-                          // const Text(
-                          //   "Gmail",
-                          //   style: TextStyle(
-                          //     color: Color(0xFF7B1F2B),
-                          //     fontSize: 24,
-                          //     fontWeight: FontWeight.w700,
-                          //   ),
-                          // ),
-
-                          // const SizedBox(height: 24),
 
                           // Password
                           const Text(
                             "Password",
                             style: TextStyle(
-                              color: Color(0xFF7B1F2B),
+                              color: ColorConstant.headingMaroon,
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                             ),
@@ -154,25 +148,15 @@ class _AdminLoginState extends State<AdminLogin> {
                             ),
                           ),
 
-                          // const SizedBox(height: 10),
-
-                          // const Align(
-                          //   alignment: Alignment.centerRight,
-                          //   child: Text(
-                          //     "Forgot Password?",
-                          //     style: TextStyle(
-                          //       color: Colors.black87,
-                          //       fontSize: 20,
-                          //       fontWeight: FontWeight.w600,
-                          //     ),
-                          //   ),
-                          // ),
                           const Spacer(),
 
-                          // Sign In button (kept inside white area now)
+                          // Sign In button
                           GestureDetector(
                             onTap: () {
-                              loginAdmin();
+                              context.read<AuthenticationProvider>().loginAdmin(
+                                id: nameController.text,
+                                password: passwordController.text,
+                              );
                             },
                             child: Container(
                               height: 56,
@@ -182,8 +166,8 @@ class _AdminLoginState extends State<AdminLogin> {
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                   colors: [
-                                    Color(0xFFB2272F), // red
-                                    Color(0xFF3A153E), // purple
+                                    ColorConstant.buttonRed, // red
+                                    ColorConstant.buttonPurple, // purple
                                   ],
                                 ),
                               ),
@@ -202,41 +186,6 @@ class _AdminLoginState extends State<AdminLogin> {
                           ),
 
                           const SizedBox(height: 16),
-
-                          // Bottom text
-                          // Center(
-                          //   child: Text.rich(
-                          //     TextSpan(
-                          //       style: const TextStyle(
-                          //         color: Colors.black87,
-                          //         fontSize: 20,
-                          //       ),
-                          //       children: [
-                          //         const TextSpan(
-                          //           text: "Already have an Account? ",
-                          //         ),
-                          //         TextSpan(
-                          //           text: "Sign In",
-                          //           style: const TextStyle(
-                          //             color: Color(0xFF6B2C7B),
-                          //             fontWeight: FontWeight.w700,
-                          //           ),
-                          //           recognizer: TapGestureRecognizer()
-                          //             ..onTap = () {
-                          //               Navigator.push(
-                          //                 context,
-                          //                 MaterialPageRoute(
-                          //                   builder: (context) =>
-                          //                       SigninScreen(),
-                          //                 ),
-                          //               );
-                          //               // handle tap
-                          //             },
-                          //         ),
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
                         ],
                       ),
                     ),
@@ -248,37 +197,5 @@ class _AdminLoginState extends State<AdminLogin> {
         ),
       ),
     );
-  }
-
-  loginAdmin() {
-    FirebaseFirestore.instance.collection('Admin').get().then((snapshot) {
-      snapshot.docs.forEach((result) {
-        if (result.data()['id'] != nameController.text.trim()) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Your id is not correct',
-                style: TextStyle(fontSize: 24),
-              ),
-            ),
-          );
-        } else if (result.data()['password'] !=
-            passwordController.text.trim()) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Your password is not correct',
-                style: TextStyle(fontSize: 24),
-              ),
-            ),
-          );
-        } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => BookingAdmin()),
-          );
-        }
-      });
-    });
   }
 }

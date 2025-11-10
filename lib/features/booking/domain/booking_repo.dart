@@ -1,4 +1,4 @@
-import 'package:barber_app/domain/models/user_model.dart';
+import 'package:barber_app/features/home/user/domain/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 abstract class BookingRepository {

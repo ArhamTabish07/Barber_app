@@ -1,9 +1,10 @@
+import 'package:barber_app/core/dependency_injection/di.dart';
+import 'package:barber_app/core/services/navigation_service.dart';
 import 'package:barber_app/features/auth/screens/forgot_password.dart';
 import 'package:barber_app/features/auth/screens/signup.dart';
-import 'package:barber_app/features/home/screens/home.dart';
-import 'package:barber_app/provider/auth_provider.dart';
-import 'package:barber_app/provider/user_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:barber_app/core/constants/colors.dart';
+import 'package:barber_app/features/auth/provider/auth_provider.dart';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,9 +18,15 @@ class SigninScreen extends StatefulWidget {
 
 class _SigninScreenState extends State<SigninScreen> {
   final _formkey = GlobalKey<FormState>();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  bool _loading = false;
+  late TextEditingController emailController = TextEditingController();
+  late TextEditingController passwordController = TextEditingController();
+  final _navService = DI.i<NavigationService>();
+  @override
+  void initState() {
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -28,48 +35,19 @@ class _SigninScreenState extends State<SigninScreen> {
     super.dispose();
   }
 
-  Future<void> _handleSignIn() async {
-    if (!_formkey.currentState!.validate()) return;
-
-    setState(() {
-      _loading = true;
-    });
-
-    final authProv = context.read<AuthenticationProvider>();
-    final err = await authProv.signIn(
-      email: emailController.text.trim(),
-      password: passwordController.text,
-    );
-
-    setState(() {
-      _loading = false;
-    });
-
-    if (err != null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
-      return;
-    }
-
-    // we are signed in now
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
-    await context.read<UserProvider>().loadUserByUid(uid);
-
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const Home()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final authLoading = context.watch<AuthenticationProvider>().isLoading;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xffb91635), Color(0xff621d3c), Color(0xff311937)],
+            colors: [
+              ColorConstant.gradientRed,
+              ColorConstant.gradientPurple,
+              ColorConstant.gradientDeepPurple,
+            ],
           ),
         ),
         child: SafeArea(
@@ -127,7 +105,7 @@ class _SigninScreenState extends State<SigninScreen> {
                           const Text(
                             "Gmail",
                             style: TextStyle(
-                              color: Color(0xFF7B1F2B),
+                              color: ColorConstant.headingMaroon,
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                             ),
@@ -150,7 +128,7 @@ class _SigninScreenState extends State<SigninScreen> {
                           const Text(
                             "Password",
                             style: TextStyle(
-                              color: Color(0xFF7B1F2B),
+                              color: ColorConstant.headingMaroon,
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
                             ),
@@ -174,11 +152,8 @@ class _SigninScreenState extends State<SigninScreen> {
                             alignment: Alignment.centerRight,
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const ForgotPassword(),
-                                  ),
+                                _navService.navigateToScreen(
+                                  nextScreen: ForgotPassword(),
                                 );
                               },
                               child: const Text(
@@ -193,7 +168,18 @@ class _SigninScreenState extends State<SigninScreen> {
                           ),
                           const SizedBox(height: 24),
                           GestureDetector(
-                            onTap: _loading ? null : _handleSignIn,
+                            onTap: authLoading
+                                ? null
+                                : () {
+                                    final authProv = context
+                                        .read<AuthenticationProvider>();
+                                    if (_formkey.currentState!.validate()) {
+                                      authProv.signIn(
+                                        email: emailController.text.trim(),
+                                        password: passwordController.text,
+                                      );
+                                    }
+                                  },
                             child: Container(
                               height: 56,
                               decoration: BoxDecoration(
@@ -201,23 +187,22 @@ class _SigninScreenState extends State<SigninScreen> {
                                 gradient: LinearGradient(
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
-                                  colors: _loading
+                                  colors: authLoading
                                       ? [
-                                          const Color(
-                                            0xFFB2272F,
-                                          ).withOpacity(0.5),
-                                          const Color(
-                                            0xFF3A153E,
-                                          ).withOpacity(0.5),
+                                          ColorConstant.buttonRed.withOpacity(
+                                            0.5,
+                                          ),
+                                          ColorConstant.buttonPurple
+                                              .withOpacity(0.5),
                                         ]
                                       : const [
-                                          Color(0xFFB2272F),
-                                          Color(0xFF3A153E),
+                                          ColorConstant.buttonRed,
+                                          ColorConstant.buttonPurple,
                                         ],
                                 ),
                               ),
                               child: Center(
-                                child: _loading
+                                child: authLoading
                                     ? const SizedBox(
                                         width: 20,
                                         height: 20,
@@ -254,17 +239,13 @@ class _SigninScreenState extends State<SigninScreen> {
                                   TextSpan(
                                     text: "Sign up",
                                     style: const TextStyle(
-                                      color: Color(0xFF6B2C7B),
+                                      color: ColorConstant.linkPurple,
                                       fontWeight: FontWeight.w700,
                                     ),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                const SignUpScreen(),
-                                          ),
+                                        _navService.navigateToScreen(
+                                          nextScreen: SignUpScreen(),
                                         );
                                       },
                                   ),

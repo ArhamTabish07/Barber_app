@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:barber_app/provider/booking_provider.dart';
+import 'package:barber_app/core/dependency_injection/di.dart';
+import 'package:barber_app/core/services/navigation_service.dart';
+import 'package:barber_app/core/constants/colors.dart';
+import 'package:barber_app/features/booking/provider/booking_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class BookingAdmin extends StatelessWidget {
-  const BookingAdmin({super.key});
+class AdminShowBookings extends StatelessWidget {
+  AdminShowBookings({super.key});
+  final _navService = DI.i<NavigationService>();
 
   ImageProvider? _buildAvatarImage(String raw) {
     if (raw.isEmpty) return null;
@@ -86,7 +90,10 @@ class BookingAdmin extends StatelessWidget {
                     gradient: const LinearGradient(
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
-                      colors: [Color(0xFFB2272F), Color(0xFF3A153E)],
+                      colors: [
+                        ColorConstant.buttonRed,
+                        ColorConstant.buttonPurple,
+                      ],
                     ),
                   ),
                   child: Padding(
@@ -153,11 +160,7 @@ class BookingAdmin extends StatelessWidget {
                           onTap: () async {
                             await provider.delete(ds.id);
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Booking deleted'),
-                                ),
-                              );
+                              _navService.showToast('Booking deleted');
                             }
                           },
                           child: Container(

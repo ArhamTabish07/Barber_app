@@ -1,9 +1,12 @@
-import 'package:barber_app/Admin/admin_login.dart';
+import 'package:barber_app/features/Admin/admin_login.dart';
+import 'package:barber_app/core/dependency_injection/di.dart';
+import 'package:barber_app/core/services/navigation_service.dart';
 import 'package:barber_app/features/auth/screens/signin.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatelessWidget {
-  const OnboardingScreen({super.key});
+  OnboardingScreen({super.key});
+  final _navService = DI.i<NavigationService>();
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +62,8 @@ class OnboardingScreen extends StatelessWidget {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SigninScreen(),
-                          ),
+                        _navService.navigateToScreen(
+                          nextScreen: SigninScreen(),
                         );
                       },
                       child: Container(
@@ -90,10 +90,7 @@ class OnboardingScreen extends StatelessWidget {
                     const SizedBox(height: 20),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const AdminLogin()),
-                        );
+                        _navService.navigateToScreen(nextScreen: AdminLogin());
                       },
                       child: Container(
                         width: double.infinity,

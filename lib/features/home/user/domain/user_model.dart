@@ -2,7 +2,6 @@ class UserModel {
   final String uid;
   final String email;
   final String name;
-  // Can be base64 string (your avatar) or "" if not set
   final String image;
 
   const UserModel({

@@ -1,8 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:barber_app/data/datasource/user_remote_data_source.dart';
-import 'package:barber_app/domain/models/user_model.dart';
-import 'package:barber_app/domain/repo/user_repo.dart';
+import 'package:barber_app/features/home/user/data/user_remote_data_source.dart';
+import 'package:barber_app/features/home/user/domain/user_model.dart';
+import 'package:barber_app/features/home/user/domain/user_repo.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final UserRemoteDataSource _remote;
@@ -19,7 +20,10 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<void> signIn({required String email, required String password}) {
+  Future<UserCredential?> signIn({
+    required String email,
+    required String password,
+  }) {
     return _remote.signInWithEmail(email: email, password: password);
   }
 
@@ -41,5 +45,10 @@ class UserRepositoryImpl implements UserRepository {
   @override
   String avatarFromBytes(Uint8List? bytes) {
     return _remote.encodeAvatar(bytes);
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getAdminById(String id) {
+    return _remote.getAdminById(id);
   }
 }

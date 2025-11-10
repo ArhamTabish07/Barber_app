@@ -1,6 +1,6 @@
-import 'package:barber_app/data/datasource/booking_remote_data_soure.dart';
-import 'package:barber_app/domain/models/user_model.dart';
-import 'package:barber_app/domain/repo/booking_repo.dart';
+import 'package:barber_app/features/booking/data/booking_remote_data_soure.dart';
+import 'package:barber_app/features/home/user/domain/user_model.dart';
+import 'package:barber_app/features/booking/domain/booking_repo.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 

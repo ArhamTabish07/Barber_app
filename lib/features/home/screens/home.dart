@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:barber_app/core/constants/colors.dart';
+import 'package:barber_app/core/dependency_injection/di.dart';
+import 'package:barber_app/core/services/navigation_service.dart';
 import 'package:barber_app/features/auth/screens/signin.dart';
 import 'package:barber_app/features/booking/screen/booking_screen.dart';
-import 'package:barber_app/provider/auth_provider.dart';
-import 'package:barber_app/provider/user_provider.dart';
+import 'package:barber_app/features/auth/provider/auth_provider.dart';
+import 'package:barber_app/features/home/user/provider/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:barber_app/features/home/widgets/service_tile.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -16,6 +19,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     final userProv = context.watch<UserProvider>();
     final user = userProv.currentUser;
+    final _navService = DI.i<NavigationService>();
 
     Uint8List? avatarBytes;
     if (user.image.trim().isNotEmpty) {
@@ -91,81 +95,27 @@ class Home extends StatelessWidget {
                 children: [
                   Flexible(
                     fit: FlexFit.tight,
-                    child: GestureDetector(
+                    child: ServiceTile(
+                      imagePath: 'images/cutting.png',
+                      name: 'Hair Cutting',
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const Booking(services: 'Hair Cutting'),
-                          ),
+                        _navService.navigateToScreen(
+                          nextScreen: Booking(services: 'Hair Cutting'),
                         );
                       },
-                      child: Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'images/cutting.png',
-                              width: 80,
-                              height: 80,
-                            ),
-                            const Text(
-                              'Hair Cutting',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
                   const SizedBox(width: 20),
                   Flexible(
                     fit: FlexFit.tight,
-                    child: GestureDetector(
+                    child: ServiceTile(
+                      imagePath: 'images/hair.png',
+                      name: 'Hair Wash',
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const Booking(services: 'Hair Wash'),
-                          ),
+                        _navService.navigateToScreen(
+                          nextScreen: Booking(services: 'Hair Wash'),
                         );
                       },
-                      child: Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'images/hair.png',
-                              width: 80,
-                              height: 80,
-                            ),
-                            const Text(
-                              'Hair Wash',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
                 ],
@@ -176,80 +126,27 @@ class Home extends StatelessWidget {
                 children: [
                   Flexible(
                     fit: FlexFit.tight,
-                    child: GestureDetector(
+                    child: ServiceTile(
+                      imagePath: 'images/shaving.png',
+                      name: 'Classic Shaving',
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const Booking(services: 'Classic Shaving'),
-                          ),
+                        _navService.navigateToScreen(
+                          nextScreen: Booking(services: 'Classic Shaving'),
                         );
                       },
-                      child: Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'images/shaving.png',
-                              width: 80,
-                              height: 80,
-                            ),
-                            const Text(
-                              'Classic Shaving',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
                   const SizedBox(width: 20),
                   Flexible(
                     fit: FlexFit.tight,
-                    child: GestureDetector(
+                    child: ServiceTile(
+                      imagePath: 'images/facials.png',
+                      name: 'Facials',
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const Booking(services: 'Facials'),
-                          ),
+                        _navService.navigateToScreen(
+                          nextScreen: Booking(services: 'Facials'),
                         );
                       },
-                      child: Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'images/facials.png',
-                              width: 80,
-                              height: 80,
-                            ),
-                            const Text(
-                              'Facials',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
                 ],
@@ -260,81 +157,27 @@ class Home extends StatelessWidget {
                 children: [
                   Flexible(
                     fit: FlexFit.tight,
-                    child: GestureDetector(
+                    child: ServiceTile(
+                      imagePath: 'images/beard.png',
+                      name: 'Beard Trimming',
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const Booking(services: 'Beard Trimming'),
-                          ),
+                        _navService.navigateToScreen(
+                          nextScreen: Booking(services: 'Beard Trimming'),
                         );
                       },
-                      child: Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'images/beard.png',
-                              width: 80,
-                              height: 80,
-                            ),
-                            const Text(
-                              'Beard Trimming',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
                   const SizedBox(width: 20),
                   Flexible(
                     fit: FlexFit.tight,
-                    child: GestureDetector(
+                    child: ServiceTile(
+                      imagePath: 'images/kids.png',
+                      name: 'Kids HairCutting',
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const Booking(services: 'Kids HairCutting'),
-                          ),
+                        _navService.navigateToScreen(
+                          nextScreen: Booking(services: 'Kids HairCutting'),
                         );
                       },
-                      child: Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'images/kids.png',
-                              width: 80,
-                              height: 80,
-                            ),
-                            const Text(
-                              'Kids HairCutting',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ),
                 ],
@@ -352,11 +195,7 @@ class Home extends StatelessWidget {
           if (!context.mounted) return;
           context.read<UserProvider>().clearUser();
 
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const SigninScreen()),
-            (_) => false,
-          );
+          _navService.pushReplacementToScreen(nextScreen: SigninScreen());
         },
       ),
     );

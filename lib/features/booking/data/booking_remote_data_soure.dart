@@ -1,4 +1,4 @@
-import 'package:barber_app/domain/models/user_model.dart';
+import 'package:barber_app/features/home/user/domain/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BookingRemoteDataSource {
@@ -20,7 +20,7 @@ class BookingRemoteDataSource {
     await _firestore.collection('Bookings').add({
       'Username': user.name.trim(),
       'Email': user.email.trim(),
-      'Image': user.image.trim(), // base64 or ""
+      'Image': user.image.trim(),
       'Service': service.trim(),
       'Date': date.trim(),
       'Time': time.trim(),

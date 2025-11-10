@@ -1,6 +1,6 @@
 import 'package:barber_app/core/constants/colors.dart';
-import 'package:barber_app/provider/user_provider.dart';
-import 'package:barber_app/provider/booking_provider.dart';
+import 'package:barber_app/features/home/user/provider/user_provider.dart';
+import 'package:barber_app/features/booking/provider/booking_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,8 +17,6 @@ class _BookingState extends State<Booking> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
 
-  bool _loadingUser = true; // block UI until user is loaded
-
   @override
   void initState() {
     super.initState();
@@ -27,16 +25,8 @@ class _BookingState extends State<Booking> {
 
   Future<void> _ensureUserLoaded() async {
     final userProv = context.read<UserProvider>();
-
-    // If provider doesn't already have a user, pull it using FirebaseAuth uid.
     if (userProv.currentUser.isEmpty) {
       await userProv.loadUser();
-    }
-
-    if (mounted) {
-      setState(() {
-        _loadingUser = false;
-      });
     }
   }
 
@@ -119,6 +109,8 @@ class _BookingState extends State<Booking> {
 
   @override
   Widget build(BuildContext context) {
+    final isUserLoading = context.watch<UserProvider>().isLoading;
+    final isSubmitting = context.watch<BookingProvider>().isSubmitting;
     final dateLabel = _selectedDate == null
         ? 'e.g:25/12/2025'
         : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}';
@@ -140,7 +132,7 @@ class _BookingState extends State<Booking> {
         ),
       ),
       body: SafeArea(
-        child: _loadingUser
+        child: isUserLoading
             ? const Center(
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
@@ -273,7 +265,7 @@ class _BookingState extends State<Booking> {
                     const Spacer(),
 
                     GestureDetector(
-                      onTap: _bookNow,
+                      onTap: isSubmitting ? null : _bookNow,
                       child: Container(
                         height: 60,
                         width: double.infinity,
@@ -281,15 +273,26 @@ class _BookingState extends State<Booking> {
                           color: Colors.orange,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Center(
-                          child: Text(
-                            'BOOK NOW',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                            ),
-                          ),
+                        child: Center(
+                          child: isSubmitting
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Text(
+                                  'BOOK NOW',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                  ),
+                                ),
                         ),
                       ),
                     ),
